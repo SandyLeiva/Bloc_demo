@@ -1,4 +1,6 @@
 import 'package:demo_bloc/home/view/home_page.dart';
+import 'package:demo_bloc/login/bloc/login_bloc.dart';
+import 'package:demo_bloc/login/bloc/login_event.dart';
 import 'package:demo_bloc/login/cubit/login_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,19 +20,22 @@ class _LoginPageState extends State<LoginPage> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      context.read<LoginCubit>().login(
-            _usernameController.text.trim(),
-            _passwordController.text.trim(),
+      context.read<LoginBloc>().add(
+            LoginSubmitted(
+              _usernameController.text.trim(),
+              _passwordController.text.trim(),
+          ),
           );
     }
   }
-
-  @override
+  
+ @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginCubit, LoginState>(
+    return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state.status == LoginStatus.success) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => const HomePage()));
         } else if (state.status == LoginStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.errorMessage ?? 'Error desconocido')),
@@ -55,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person),
                     ),
-                    validator: (value) => value!.isEmpty ? 'Ingrese su usuario' : null,
+                    validator: (value) => value!.isEmpty ? 'Ingrese el usuario' : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -66,20 +71,24 @@ class _LoginPageState extends State<LoginPage> {
                       prefixIcon: Icon(Icons.lock),
                     ),
                     obscureText: true,
-                    validator: (value) => value!.isEmpty ? 'Ingrese su contraseña' : null,
+                    validator: (value) => value!.isEmpty ? 'Ingrese la contraseña' : null,
                   ),
                   const SizedBox(height: 20),
-                  BlocBuilder<LoginCubit, LoginState>(
+                  BlocBuilder<LoginBloc, LoginState>(
                     builder: (context, state) {
                       return ElevatedButton(
-                        onPressed: state.status == LoginStatus.loading ? null : _submit,
+                        onPressed:
+                            state.status == LoginStatus.loading ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
                         ),
                         child: state.status == LoginStatus.loading
                             ? const CircularProgressIndicator()
-                            : const Text('Ingresar', style: TextStyle(fontSize: 16)),
+                            : const Text('Ingresar',
+                                style: TextStyle(fontSize: 16)),
                       );
                     },
                   ),
@@ -92,3 +101,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
